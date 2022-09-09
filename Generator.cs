@@ -10,8 +10,38 @@ namespace Experiment {
             double number = 0;
             Token token = _tokenizer.GenToken();
             //set
-            if(token == Token.OpenCurly) { 
-
+            if(token == Token.OpenCurly) {  
+                _tokenizer.Skip();   
+                List<double> numbersInQue = new List<double>{0d};
+                while(_tokenizer.token != Token.EOF && _tokenizer.token != Token.CloseCurly) { 
+                    switch(_tokenizer.token) {
+                        case Token.Subtract: {
+                            if(numbersInQue.Last() != 0) {
+                                Console.WriteLine("Cannot write a {0} sign after {1} number", '-', numbersInQue.Last());
+                                throw new Exception("Invalid character");
+                            }
+                            _tokenizer.Skip();
+                            numbersInQue[numbersInQue.Count -1] = -1 * _tokenizer.number;
+                        }break;
+                        case Token.Comma: {
+                            if(numbersInQue.Count == 0) {
+                                Console.WriteLine("Cannot write a {0} without preceeding numbers", ',');
+                                throw new Exception("Invalid character");
+                            }
+                            numbersInQue.Add(0d);
+                        }break;
+                        case Token.Number: {
+                            numbersInQue[numbersInQue.Count -1] = 
+                                numbersInQue[numbersInQue.Count -1] * 10 + numbersInQue[numbersInQue.Count -1] >= 0?
+                                 _tokenizer.number : -1*_tokenizer.number;
+                        }break;
+                        default: 
+                            Console.WriteLine("Cannot have number set with invalid {0} character", _tokenizer.character);
+                            throw new Exception("Invalid character");
+                    }
+                    _tokenizer.Skip();   
+                }
+                number = numbersInQue[(int)Math.Round(new Random().NextDouble() * (numbersInQue.Count-1))];
             } // range 
             else {
                 double numMin = genRange();
@@ -23,12 +53,12 @@ namespace Experiment {
                     throw new Exception("Generator-genRange: Invalid number range");
                 }
 
-                List<GeneratorExpr> operationQue = new List<GeneratorExpr>{}; 
+                List<GeneratorExpression> operationQue = new List<GeneratorExpression>{}; 
                 bool inQue = false; 
                 Token mathOperationInQue = Token.Unknown;
                 List<List<double>> numbersInQue = new List<List<double>> (); 
                 double refValue = 0;
-                GeneratorExpr.MathDelegateBool? delegated = null;
+                GeneratorExpression.MathDelegateBool? delegated = null;
                 while(_tokenizer.token != Token.EOF) {  
                     switch(_tokenizer.token){  
                         case Token.Modulo : { 
@@ -44,7 +74,7 @@ namespace Experiment {
                                 throw new Exception("Invalid character");
                             } 
                             mathOperationInQue = Token.Subtract;
-                            delegated = GeneratorExpr.LessThan;
+                            delegated = GeneratorExpression.LessThan;
                         } break;
                         case Token.LessOrEqual : { 
                             if(mathOperationInQue != Token.Unknown){
@@ -52,7 +82,7 @@ namespace Experiment {
                                 throw new Exception("Invalid character");
                             } 
                             mathOperationInQue = Token.Subtract;
-                            delegated = GeneratorExpr.LessOrEqual;
+                            delegated = GeneratorExpression.LessOrEqual;
                         } break;
                         case Token.GreaterThan : { 
                             if(mathOperationInQue != Token.Unknown){
@@ -60,7 +90,7 @@ namespace Experiment {
                                 throw new Exception("Invalid character");
                             } 
                             mathOperationInQue = Token.Subtract;
-                            delegated = GeneratorExpr.GreaterThan;
+                            delegated = GeneratorExpression.GreaterThan;
                         } break;
                         case Token.GreaterOrEqual : { 
                             if(mathOperationInQue != Token.Unknown){
@@ -68,7 +98,7 @@ namespace Experiment {
                                 throw new Exception("Invalid character");
                             } 
                             mathOperationInQue = Token.Subtract;
-                            delegated = GeneratorExpr.GreaterOrEqual;
+                            delegated = GeneratorExpression.GreaterOrEqual;
                         } break;
                         case Token.OpenParens:  { 
                             if(inQue) {
@@ -113,7 +143,7 @@ namespace Experiment {
                                 Console.WriteLine("Cannot have == condition without numbers", _tokenizer.character);
                                 throw new Exception("Invalid character");
                             }
-                            delegated = GeneratorExpr.EqualTo;
+                            delegated = GeneratorExpression.EqualTo;
 
                         } break;
                         case Token.NotEqual:  { 
@@ -125,7 +155,7 @@ namespace Experiment {
                                 Console.WriteLine("Cannot have != condition without numbers", _tokenizer.character);
                                 throw new Exception("Invalid character");
                             }
-                            delegated = GeneratorExpr.NotEqualTo;
+                            delegated = GeneratorExpression.NotEqualTo;
                         } break;
                         case Token.Number:  { 
                             if(!inQue && numbersInQue.Last().Count == 0) {
@@ -175,30 +205,36 @@ namespace Experiment {
                     } 
                     _tokenizer.Skip();  
                 } 
-                delegated = delegated != null? delegated: GeneratorExpr.EqualTo;
+                delegated = delegated != null? delegated: GeneratorExpression.EqualTo;
 
                 for(int i = 0; i < numbersInQue.Count; i++) { 
-                    operationQue.Add(new GeneratorExpr(mathOperationInQue, numbersInQue[i], refValue, delegated));
+                    operationQue.Add(new GeneratorExpression(mathOperationInQue, numbersInQue[i], refValue, delegated));
                 } 
 
-                while(true) { 
-                    double def = Math.Floor(numMin + (numMax - numMin) * (new Random()).NextDouble());
-                    bool found = false;
-                    foreach(GeneratorExpr gen in operationQue) { 
-                        if(gen.Run(def)){
-                            number = def;
-                            found = true;
-                            break;
-                        };
-                    }
-                    if(found) break;
-                }
+                number = generateNumber(operationQue, numMin, numMax);
+                
             }
             
 
             return number;
         }
 
+        private double generateNumber(in List<GeneratorExpression> que, double min, double max) { 
+            double number = 0;
+            while(true) { 
+                double def = Math.Floor(min + (max - min) * (new Random()).NextDouble());
+                bool found = false;
+                foreach(GeneratorExpression gen in que) { 
+                    if(gen.Run(def)){
+                        number = def;
+                        found = true;
+                        break;
+                    };
+                }
+                if(found) break;
+            }
+            return number;
+        }
         private double genRange() {
             double? number = null; 
             while(_tokenizer.token == Token.Number || _tokenizer.token ==Token.Subtract) {  
@@ -234,91 +270,5 @@ namespace Experiment {
         public static double gen(string numberString){ 
             return gen(new Tokenizer(new StringReader(numberString)));
         } 
-    }
-    
-    class GeneratorExpr {  
-        public delegate double MathDelegateDouble(double lhs, double rhs);
-        public delegate bool MathDelegateBool(double lhs, double rhs);
-
-        private Token _operator;
-        private List<double> _rhs = new List<double>{};
-        private double _refValue = 0d;
-        private MathDelegateBool _delegated;
-        
-        public GeneratorExpr(Token operator_, List<double> rhs_, double refValue, MathDelegateBool delegateBool){  
-            _operator = operator_;
-            _rhs = rhs_;
-            _refValue = refValue;
-            _delegated = delegateBool;
-        }
-
-        public bool Run (double lhs_) {  
-           MathDelegateDouble operation_;
-           switch (_operator) { 
-                case Token.Modulo: { 
-                    operation_ = new MathDelegateDouble(Modulo);
-                }break;
-                case Token.Subtract: { 
-                    operation_ = new MathDelegateDouble(Subtract);
-                }break;
-                case Token.Add: { 
-                    operation_ = new MathDelegateDouble(Subtract);
-                }break;
-                default: 
-                    operation_ = new MathDelegateDouble(DefaultDouble);
-                    break;
-            } 
-            for(int i = 0; i < _rhs.Count; i++) { 
-                if(!_delegated(operation_(lhs_, _rhs[i]), _refValue)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        
-        public static double DefaultBool(double lhs_, double rhs_) { 
-            throw new Exception("Invalid math operation"); 
-        } 
-        
-        
-        public static double DefaultDouble(double lhs_, double rhs_) { 
-            throw new Exception("Invalid math operation"); 
-        } 
-        
-        public static double Modulo(double lhs_, double rhs_) { 
-            return lhs_ % rhs_;
-        } 
-        
-        
-        public static double Subtract(double lhs_, double rhs_) { 
-            return lhs_ - rhs_;
-        } 
-        
-        
-        public static double Add(double lhs_, double rhs_) { 
-            return lhs_ + rhs_;
-        } 
-        
-        public static bool EqualTo(double lhs_, double rhs_){ 
-            return lhs_ == rhs_;
-        }
-
-        public static bool NotEqualTo(double lhs_, double rhs_) { 
-            return lhs_ != rhs_;
-        }
-        public static bool GreaterThan(double lhs_, double rhs_){ 
-            return lhs_ > rhs_;
-        }
-
-        public static bool LessThan(double lhs_, double rhs_) { 
-            return lhs_ < rhs_;
-        }
-        public static bool GreaterOrEqual(double lhs_, double rhs_){ 
-            return lhs_ >= rhs_;
-        }
-
-        public static bool LessOrEqual(double lhs_, double rhs_) { 
-            return lhs_ <= rhs_;
-        }
     }
 }

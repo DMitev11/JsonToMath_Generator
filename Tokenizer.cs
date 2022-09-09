@@ -35,7 +35,7 @@ namespace Experiment{
         public Token GenToken() { 
             StringBuilder? sb = null; 
             Token generatedToken;
-            if (char.IsDigit(_currentChar) || (_currentChar =='.' || _currentChar ==','))
+            if (char.IsDigit(_currentChar) || (_currentChar =='.'))
             {
                 // Capture digits/decimal point
                 sb = sb == null? sb = new StringBuilder(): sb;
@@ -88,6 +88,10 @@ namespace Experiment{
 
                 case '+': 
                     token = Token.Add;
+                    break;
+
+                case ',': 
+                    token = Token.Comma;
                     break;
 
                 case '-': 
@@ -232,6 +236,7 @@ namespace Experiment{
         CloseParens,
         OpenCurly,
         CloseCurly,
-        To
+        To,
+        Comma
     }
 }
