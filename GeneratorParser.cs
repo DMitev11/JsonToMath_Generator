@@ -1,12 +1,12 @@
 namespace Experiment { 
     class GeneratorParser { 
 
-        public static List<double> Parse(in string[] set_) { 
+        public static List<double> Parse(in string[] set_, int seed) { 
             List<double> generatedSet = new List<double>{};
         
             for(int i = 0; i < set_.Length; i++) {
                 string builtSet = BuildSet(set_[i], generatedSet);
-                generatedSet.Add(Generator.Generate(builtSet));
+                generatedSet.Add(Generator.Generate(builtSet, seed));
             }
             return generatedSet;
         }
