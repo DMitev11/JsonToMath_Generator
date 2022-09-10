@@ -6,7 +6,7 @@ namespace Experiment {
             _tokenizer = tokenizer;
         }
 
-        public double run() {  
+        public double Run() {  
             double number = 0;
             Token token = _tokenizer.GenToken();
             //set
@@ -44,13 +44,13 @@ namespace Experiment {
                 number = numbersInQue[(int)Math.Round(new Random().NextDouble() * (numbersInQue.Count-1))];
             } // range 
             else {
-                double numMin = genRange();
+                double numMin = GenerateRange();
                         _tokenizer.Skip();
-                double numMax = genRange(); 
+                double numMax = GenerateRange(); 
                 //Generate Range 
                 if(numMax < numMin) { 
                     Console.WriteLine("You can have range from {0} to {1} ", numMin, numMax);
-                    throw new Exception("Generator-genRange: Invalid number range");
+                    throw new Exception("Generator-GenerateRange: Invalid number range");
                 }
 
                 List<GeneratorExpression> operationQue = new List<GeneratorExpression>{}; 
@@ -211,7 +211,7 @@ namespace Experiment {
                     operationQue.Add(new GeneratorExpression(mathOperationInQue, numbersInQue[i], refValue, delegated));
                 } 
 
-                number = generateNumber(operationQue, numMin, numMax);
+                number = GenerateNumber(operationQue, numMin, numMax);
                 
             }
             
@@ -219,13 +219,13 @@ namespace Experiment {
             return number;
         }
 
-        private double generateNumber(in List<GeneratorExpression> que, double min, double max) { 
+        private double GenerateNumber(in List<GeneratorExpression> que, double min, double max) { 
             double number = 0;
             while(true) { 
                 double def = Math.Floor(min + (max - min) * (new Random()).NextDouble());
                 bool found = false;
-                foreach(GeneratorExpression gen in que) { 
-                    if(gen.Run(def)){
+                foreach(GeneratorExpression Generate in que) { 
+                    if(Generate.Run(def)){
                         number = def;
                         found = true;
                         break;
@@ -235,12 +235,12 @@ namespace Experiment {
             }
             return number;
         }
-        private double genRange() {
+        private double GenerateRange() {
             double? number = null; 
             while(_tokenizer.token == Token.Number || _tokenizer.token ==Token.Subtract) {  
                 if(number != null && _tokenizer.token == Token.Subtract){
                     Console.WriteLine("Invalid character sequence `{0}{1}`", number, _tokenizer.character);
-                    throw new Exception("Generator-genRange: Invalid sign");
+                    throw new Exception("Generator-GenerateRange: Invalid sign");
                 } 
                 switch(_tokenizer.token) { 
                     case Token.Subtract: number = -1; break;
@@ -258,17 +258,17 @@ namespace Experiment {
             return (double) number;
         }
 
-        private static double gen(Tokenizer tokenizer){ 
+        private static double Generate(Tokenizer tokenizer){ 
             Generator _generator = new Generator(tokenizer); 
-            return _generator.run();
+            return _generator.Run();
         }
 
-        public static double gen(StringReader reader){ 
-            return gen(new Tokenizer(reader));
+        public static double Generate(StringReader reader){ 
+            return Generate(new Tokenizer(reader));
         }
         
-        public static double gen(string numberString){ 
-            return gen(new Tokenizer(new StringReader(numberString)));
+        public static double Generate(string numberString){ 
+            return Generate(new Tokenizer(new StringReader(numberString)));
         } 
     }
 }
