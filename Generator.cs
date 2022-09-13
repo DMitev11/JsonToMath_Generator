@@ -4,9 +4,9 @@ namespace Experiment {
         private Random _random; 
 
 
-        private Generator(Tokenizer tokenizer, int seed) {
+        private Generator(Tokenizer tokenizer, Random random) {
             _tokenizer = tokenizer;
-            _random = new Random(seed);
+            _random = random;
         }
 
         public double Run() {  
@@ -227,13 +227,18 @@ namespace Experiment {
             while(true) { 
                 double def = Math.Floor(min + (max - min) * (_random).NextDouble());
                 bool found = false;
-                foreach(GeneratorExpression Generate in que) { 
-                    if(Generate.Run(def)){
-                        number = def;
-                        found = true;
-                        break;
-                    };
-                }
+                if(que.Count == 0) { 
+                    found = true; 
+                    number = def;
+                } else {
+                    foreach(GeneratorExpression Generate in que) { 
+                        if(Generate.Run(def)){
+                            number = def;
+                            found = true;
+                            break;
+                        };
+                    }
+                }  
                 if(found) break;
             }
             return number;
@@ -257,21 +262,21 @@ namespace Experiment {
                 _tokenizer.Next();
                 _tokenizer.GenToken();
             } 
-            number = number != null? number : 0d;
+            number = number != null? number : 0d; 
             return (double) number;
         }
 
-        private static double Generate(Tokenizer tokenizer, int seed){ 
-            Generator _generator = new Generator(tokenizer, seed); 
+        private static double Generate(Tokenizer tokenizer, Random random){ 
+            Generator _generator = new Generator(tokenizer, random); 
             return _generator.Run();
         }
 
-        public static double Generate(StringReader reader, int seed){ 
-            return Generate(new Tokenizer(reader), seed);
+        public static double Generate(StringReader reader, Random random){ 
+            return Generate(new Tokenizer(reader), random);
         }
         
-        public static double Generate(string numberString, int seed){ 
-            return Generate(new Tokenizer(new StringReader(numberString)), seed);
+        public static double Generate(string numberString, Random random){ 
+            return Generate(new Tokenizer(new StringReader(numberString)), random);
         } 
     }
 }

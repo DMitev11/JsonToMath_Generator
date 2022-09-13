@@ -1,12 +1,12 @@
 namespace Experiment { 
     class GeneratorParser { 
 
-        public static List<double> Parse(in string[] set_, int seed) { 
-            List<double> generatedSet = new List<double>{};
+        public static List<double> Parse(in string[] set_, Random random) { 
+            List<double> generatedSet = new List<double>{}; 
         
             for(int i = 0; i < set_.Length; i++) {
                 string builtSet = BuildSet(set_[i], generatedSet);
-                generatedSet.Add(Generator.Generate(builtSet, seed));
+                generatedSet.Add(Generator.Generate(builtSet, random));
             }
             return generatedSet;
         }
@@ -20,14 +20,22 @@ namespace Experiment {
                     return set;
                 }
                 for(int i = 1; i <= indexClose - indexOpen -1; i++) {  
-                    index =  index * 10 + (set[indexOpen + i] - '0');
-
-                }
+                    if(set[indexOpen + i] == '-') { 
+                        index = -1 * (set[indexOpen + i + 1] - '0');
+                        i++;
+                    } else { 
+                        index =  index * 10 + (set[indexOpen + i] - '0'); 
+                    } 
+                } 
                 if(index >= numberList.Count) {
                     Console.WriteLine("There are only {0} numbers generated. Request for {1} number index failed", numberList.Count);
                     throw new Exception("Invalid character");
                 }
-                set = set.Substring(0, indexOpen) + numberList[index] + set.Substring(indexClose + 1); 
+                if(index >= 0) { 
+                    set = set.Substring(0, indexOpen) + numberList[index] + set.Substring(indexClose + 1); 
+                } else { 
+                    set = set.Substring(0, indexOpen) + numberList[numberList.Count + index] + set.Substring(indexClose + 1); 
+                }
             }
         }
     }
