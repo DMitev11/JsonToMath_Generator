@@ -97,12 +97,17 @@ namespace Experiment {
             Console.WriteLine("Invalid {0} character in the expression", _tokenizer.character);
             throw new Exception("Invalid character");
         }
+
+        ///<summary>  Returns result of a math expression, passed as a string </summary>
+        ///<param name="str"> Math expression.  ex."10 + 5/2"</param>
         public static Node Parse(string str) { 
             Tokenizer tokenizer = new Tokenizer(new StringReader(str));
             tokenizer.GenToken();
             return Parse(tokenizer);
         }
-
+        
+        ///<summary>  Returns result of a math expression, passed as a string </summary>
+        ///<param name="tokenizer"> Passed math expression string to a tokenizer. Ex. new Tokenizer("10 + 5/2")</param>
         public static Node Parse(Tokenizer tokenizer) { 
             ParserNode parser = new ParserNode(tokenizer);
             return parser.ParseExpression();

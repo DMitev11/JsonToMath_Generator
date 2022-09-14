@@ -1,6 +1,18 @@
 {
     "version": "2.0.0",
     "tasks": [
+        // {
+        //     "label": "build Debug",
+        //     "command": "dotnet",
+        //     "type": "process",
+        //     "args": [
+        //         "build",
+        //         "${workspaceFolder}/mathExperiment.csproj",
+        //         "/property:GenerateFullPaths=true",
+        //         "/consoleloggerparameters:NoSummary"
+        //     ],
+        //     "problemMatcher": "$msCompile"
+        // },
         {
             "label": "build",
             "command": "dotnet",
@@ -9,7 +21,9 @@
                 "build",
                 "${workspaceFolder}/mathExperiment.csproj",
                 "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "/consoleloggerparameters:NoSummary",
+                "-c",
+                "Release"
             ],
             "problemMatcher": "$msCompile"
         },
