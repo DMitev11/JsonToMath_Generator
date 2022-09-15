@@ -16,7 +16,7 @@ namespace Experiment {
                 string? read = Console.ReadLine();  
                 if(read != null && read != ""){
                     try { 
-                        List<string> test = set;  
+                        List<string> test = new List<string>(set);  
                         test.Add(read); 
                         generatedSet = GeneratorParser.Parse(test.ToArray(), random); 
                         set.Add(read); 
@@ -24,8 +24,7 @@ namespace Experiment {
                         Console.WriteLine(e);
                     }
                 } else break;
-            }
-            
+            } 
             // ex.
                 // {2} * ({1} / {0})
                 // {4} ( the previous expression ) * {2} / {0}
