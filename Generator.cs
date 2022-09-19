@@ -11,8 +11,9 @@ namespace Experiment {
 
         public double Run() {  
             double number = 0;
+            // Setup Tokenizer to check first element of string
             Token token = _tokenizer.GenToken();
-            //set
+            // Check if its number set, ex. {5, 10, 5}
             if(token == Token.OpenCurly) {  
                 _tokenizer.Skip();   
                 List<double> numbersInQue = new List<double>{0d};
@@ -44,8 +45,10 @@ namespace Experiment {
                     }
                     _tokenizer.Skip();   
                 }
+                // Choose a random number from the set of numbers
                 number = numbersInQue[(int)Math.Round(_random.NextDouble() * (numbersInQue.Count-1))];
-            } // range 
+            }
+            // Or range of numbers, ex. 0-99, 10:999
             else {
                 double numMin = GenerateRange();
                         _tokenizer.Skip();

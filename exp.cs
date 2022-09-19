@@ -124,8 +124,16 @@ namespace Experiment {
             } else if (correctAnswer <= 20) {
               coeff = 1;
             } 
-            int min = (int) Math.Round(correctAnswer == 0 ? -10 : Math.Round(correctAnswer - correctAnswer * coeff));
-            int max = (int) Math.Round(correctAnswer == 0 ? 10 : Math.Round(correctAnswer + correctAnswer * coeff));
+            int min = (int) Math.Round(correctAnswer == 0 ? -10 : Math.Round(
+                correctAnswer >= 0? 
+                    Math.Max(correctAnswer - correctAnswer * coeff, 0) : 
+                    Math.Min(correctAnswer - Math.Abs(correctAnswer) * coeff, 0)
+                ));
+            int max = (int) Math.Round(correctAnswer == 0 ? 10 : Math.Round( 
+                correctAnswer >= 0? 
+                    Math.Max(correctAnswer + Math.Abs(correctAnswer) * coeff, 0) : 
+                    Math.Min(correctAnswer + Math.Abs(correctAnswer) * coeff * coeff, 0)
+                ));
             List<double> answers = new List<double> {correctAnswer}; 
 
             while (answers.Count != 4) {

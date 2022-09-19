@@ -20,7 +20,7 @@ namespace Experiment {
         private Node AddAndSubtract() { 
             Node lhs = MultiplyAndDivide();
             while(true) { 
-                Func<double, double, double> op = null;
+                Func<double, double, double> op;
                 if(_tokenizer.token == Token.Add) { 
                     op = (a, b)=> a+b;
                 } else if (_tokenizer.token == Token.Subtract) { 
@@ -41,7 +41,7 @@ namespace Experiment {
             Node lhs = ParseUnary();
 
             while(true) { 
-                Func<double, double, double> op = null;
+                Func<double, double, double> op;
                 if(_tokenizer.token == Token.Multiply) { 
                     op = (a,b)=> a*b;
                 } else if(_tokenizer.token == Token.Divide) { 
